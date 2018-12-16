@@ -1,13 +1,9 @@
-This is a candle flicker animation for Adafruit NeoPixel LEDs run from an Arduino device.
-The LED library is at: https://github.com/adafruit/Adafruit_NeoPixel
+This is a candle flicker animation for Adafruit Circuit Playground Express.
+All ten NeoPixels are used. Each is an independent candle simulation,
+running in parallel with co-operative multitasking (coroutines).
 
-There are two versions, for one pixel and eight pixels.
+The candle simulation is based on code by Tim Bartlett, see http://timbartlett.net/ledcandle/
 
-Adjustable variables appear at the top of the sketch: RGB mix for candle color, and cycle duration for flicker speed. The NeoPixel color mix changes for 3.3v or 5v, so recommended values are included for each.
+Build this with the Arduino IDE. The Adafruit Circuit Playground library is
+required, along with the coroutines library in this repository.
 
-The animation is created in the loop() by calling animation patterns and setting how long you want each one to run.
-
-Blog writeup at http://timbartlett.net/ledcandle/
-
-Tim Bartlett
-December, 2013 
