@@ -1,6 +1,7 @@
 // candle for Adafruit NeoPixel
 // based on 8 pixel version by Tim Bartlett, December 2013
 // Modified by Jack Whitham for Adafruit Circuit Playground Express board.
+// Modified again to use the rainbow mode only depending on switch setting.
 // Compile this within the Arduino IDE.
 //
 //
@@ -11,7 +12,7 @@
 #include <setjmp.h>
 #include <jack_coroutines.h>
 
-static char name_text[] = "made by Jack Whitham using lots of borrowed code! this version from 15/12/18";
+static char name_text[] = "made by Jack Whitham using lots of borrowed code! this version from 27/12/19";
 
 #ifdef MODEL
 #include <stdio.h>
@@ -397,17 +398,13 @@ void loop (void)
             }
         }
         delay (1);
-        if (acp.slideSwitch()) {
-            // Don't flicker
-            const int grnPx = grnHigh - 6;
-            int i;
-            for (i = 0; i < num_channels; i++) {
-                set_rgb(i, redPx, grnPx, bluePx, redPx);
-            }
-        } else {
-            // Flicker
-            coroutines_goto_next_task (task_table[num_channels], task_table[0]);
+        if (!acp.slideSwitch()) {
+            // Only allow rainbow modes
+            colour_mode = rainbow_1;
         }
+
+        // Flicker
+        coroutines_goto_next_task (task_table[num_channels], task_table[0]);
         cycle_counter ++;
     }
 #endif
