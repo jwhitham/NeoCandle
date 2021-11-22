@@ -13,7 +13,7 @@ static char name_text[] = "made by Jack Whitham using lots of borrowed code! thi
 #include <Adafruit_NeoPixel.h>
 
 #define NUM_LEDS                    24
-#define NEOPIXEL_PIN                PD3
+#define NEOPIXEL_PIN                PD2
 #define COLOUR_ROTATION_TIME        20000 /* milliseconds for a full rotation */
 
 
