@@ -240,6 +240,8 @@ void loop ()
 {
     int channel;
 
+    hw_show();
+
     for (channel = 0; channel < num_channels; channel++) {
         coroutines_setup_task
             (task_table[channel + 1],

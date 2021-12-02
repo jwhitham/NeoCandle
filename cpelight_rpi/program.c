@@ -114,8 +114,9 @@ extern void loop();
 int main(int argc, char *argv[])
 {
     ws2811_return_t ret;
+    FILE * fd;
 
-    printf("\n\nprogram.elf started\n%s\n\n", name_text);
+    printf("\n\nprogram.elf started\n%s\n", name_text);
 
     if (mount("devtmpfs", "/dev", "devtmpfs", 0, NULL) != 0) {
         /* This failure is normal - the kernel mounts /dev */
@@ -127,12 +128,26 @@ int main(int argc, char *argv[])
         perror("mount tmpfs /tmp failed");
     }
 
+    fd = fopen("/program.cfg", "rt");
+    if (!fd) {
+        printf("no configuration file - using default mode %d\n", colour_mode);
+    } else {
+        int i = 0;
+        if (fscanf(fd, "%d", &i) == 1) {
+            colour_mode = (t_colour_mode) (i % num_colour_modes);
+            printf("colour mode set to %d\n", colour_mode);
+        }
+        fclose(fd);
+    }
+
     if ((ret = ws2811_init(&ledstring)) != WS2811_SUCCESS)
     {
         fprintf(stderr, "ws2811_init failed: %s\n", ws2811_get_return_t_str(ret));
         return 1;
     }
 
+    printf("initialised hardware\n");
+    fflush(stdout);
     loop();
     return 1;
 }
