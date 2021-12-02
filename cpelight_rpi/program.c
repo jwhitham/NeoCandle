@@ -52,7 +52,9 @@
 #include "version.h"
 
 #include "ws2811.h"
+#include "cpelight.h"
 
+static char name_text[] = "made by Jack Whitham using lots of borrowed code! this version from 2/12/21";
 
 #define ARRAY_SIZE(stuff)       (sizeof(stuff) / sizeof(stuff[0]))
 
@@ -68,11 +70,6 @@
 #define HEIGHT                  1
 #define LED_COUNT               (WIDTH * HEIGHT)
 
-int width = WIDTH;
-int height = HEIGHT;
-int led_count = LED_COUNT;
-
-int clear_on_exit = 0;
 
 ws2811_t ledstring =
 {
@@ -98,102 +95,27 @@ ws2811_t ledstring =
     },
 };
 
-ws2811_led_t *matrix;
 
-static uint8_t running = 1;
-
-void matrix_render(void)
+void hw_show()
 {
-    int x, y;
-
-    for (x = 0; x < width; x++)
-    {
-        for (y = 0; y < height; y++)
-        {
-            ledstring.channel[0].leds[(y * width) + x] = matrix[y * width + x];
-        }
-    }
+    ws2811_render(&ledstring);
 }
 
-void matrix_raise(void)
+void hw_set_rgb(uint8_t channel, uint8_t r, uint8_t g, uint8_t b)
 {
-    int x, y;
-
-    for (y = 0; y < (height - 1); y++)
-    {
-        for (x = 0; x < width; x++)
-        {
-            // This is for the 8x8 Pimoroni Unicorn-HAT where the LEDS in subsequent
-            // rows are arranged in opposite directions
-            matrix[y * width + x] = matrix[(y + 1)*width + width - x - 1];
-        }
-    }
+    ledstring.channel[0].leds[channel] = 
+        (((uint32_t) b) << 16) |
+        (((uint32_t) g) << 8) |
+        (((uint32_t) r) << 0);
 }
 
-void matrix_clear(void)
-{
-    int x, y;
-
-    for (y = 0; y < (height ); y++)
-    {
-        for (x = 0; x < width; x++)
-        {
-            matrix[y * width + x] = 0;
-        }
-    }
-}
-
-int dotspos[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-ws2811_led_t dotcolors[] =
-{
-    0x00200000,  // red
-    0x00201000,  // orange
-    0x00202000,  // yellow
-    0x00002000,  // green
-    0x00002020,  // lightblue
-    0x00000020,  // blue
-    0x00100010,  // purple
-    0x00200010,  // pink
-};
-
-ws2811_led_t dotcolors_rgbw[] =
-{
-    0x00200000,  // red
-    0x10200000,  // red + W
-    0x00002000,  // green
-    0x10002000,  // green + W
-    0x00000020,  // blue
-    0x10000020,  // blue + W
-    0x00101010,  // white
-    0x10101010,  // white + W
-
-};
-
-void matrix_bottom(void)
-{
-    int i;
-
-    for (i = 0; i < (int)(ARRAY_SIZE(dotspos)); i++)
-    {
-        dotspos[i]++;
-        if (dotspos[i] > (width - 1))
-        {
-            dotspos[i] = 0;
-        }
-
-        if (ledstring.channel[0].strip_type == SK6812_STRIP_RGBW) {
-            matrix[dotspos[i] + (height - 1) * width] = dotcolors_rgbw[i];
-        } else {
-            matrix[dotspos[i] + (height - 1) * width] = dotcolors[i];
-        }
-    }
-}
+extern void loop();
 
 int main(int argc, char *argv[])
 {
     ws2811_return_t ret;
 
-    printf("\n\nprogram.elf started\n\n");
+    printf("\n\nprogram.elf started\n%s\n\n", name_text);
 
     if (mount("devtmpfs", "/dev", "devtmpfs", 0, NULL) != 0) {
         /* This failure is normal - the kernel mounts /dev */
@@ -205,39 +127,12 @@ int main(int argc, char *argv[])
         perror("mount tmpfs /tmp failed");
     }
 
-
-    matrix = malloc(sizeof(ws2811_led_t) * width * height);
-
     if ((ret = ws2811_init(&ledstring)) != WS2811_SUCCESS)
     {
         fprintf(stderr, "ws2811_init failed: %s\n", ws2811_get_return_t_str(ret));
-        return ret;
+        return 1;
     }
 
-    while (running)
-    {
-        matrix_raise();
-        matrix_bottom();
-        matrix_render();
-
-        if ((ret = ws2811_render(&ledstring)) != WS2811_SUCCESS)
-        {
-            fprintf(stderr, "ws2811_render failed: %s\n", ws2811_get_return_t_str(ret));
-            break;
-        }
-
-        // 15 frames /sec
-        usleep(1000000 / 15);
-    }
-
-    if (clear_on_exit) {
-        matrix_clear();
-        matrix_render();
-        ws2811_render(&ledstring);
-    }
-
-    ws2811_fini(&ledstring);
-
-    printf ("\n");
-    return ret;
+    loop();
+    return 1;
 }
