@@ -10,7 +10,9 @@
 
 #include <stdlib.h>
 
-static char name_text[] = "made by Jack Whitham using lots of borrowed code! this version from 04/12/21";
+static char name_text[] =
+"made by Jack Whitham using lots of borrowed code! this version from 04/12/21\n"
+"https://github.com/jwhitham/NeoCandle/\n";
 
 #include <Adafruit_NeoPixel.h>
 
@@ -64,6 +66,9 @@ static int ch_constrain(int x, int l, int h)
 
 static void set_rgb(int channel, int r, int g, int b, int brightness)
 {
+    // in order to ensure that negative numbers are clamped to zero rather than
+    // 255, we use signed integers here, but this does mean that the brightness
+    // multiplication must be divided by 2 in order to avoid an overflow.
     brightness = brightness >> 1;
     r = ch_constrain((r * brightness) >> 7, 0, 255);
     g = ch_constrain((g * brightness) >> 7, 0, 255);
@@ -103,8 +108,15 @@ static void compute_wheel_rgb(unsigned wheel_pos,
 // Compute an 0..65535 colour wheel position based on the tick time
 static unsigned compute_channel_0_pos()
 {
-    return (((unsigned long) tick_time << (unsigned long) 16)
-            / (unsigned long) COLOUR_ROTATION_TIME);
+    unsigned long pos = tick_time;
+
+    // period of rotation for the colour
+    pos %= (unsigned long) COLOUR_ROTATION_TIME;
+
+    // fixed point arithmetic to get a value in the 0..65535 range
+    pos <<= (unsigned long) 16;
+    pos /= (unsigned long) COLOUR_ROTATION_TIME;
+    return (unsigned) pos;
 }
 
 // Output: the whole ring shows a rotating rainbow effect at the given brightness
