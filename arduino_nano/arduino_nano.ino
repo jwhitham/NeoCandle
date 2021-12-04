@@ -14,11 +14,7 @@ static char name_text[] = "made by Jack Whitham using lots of borrowed code! thi
 
 #define NUM_LEDS                    24
 #define NEOPIXEL_PIN                PD2
-#define SWITCH_PIN_COMMON           PD5
-#define SWITCH_PIN_LEFT             PD4
-#define SWITCH_PIN_RIGHT            PD6
 #define COLOUR_ROTATION_TIME        20000 /* milliseconds for a full rotation */
-#define STARS_ROTATION_TIME         20000
 
 
 static Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
@@ -55,9 +51,9 @@ static int ch_constrain(int x, int l, int h)
 
 static void set_rgb(int channel, int r, int g, int b, int brightness)
 {
-    r = ch_constrain(((unsigned) r * (unsigned) brightness) >> 8, 0, 255);
-    g = ch_constrain(((unsigned) g * (unsigned) brightness) >> 8, 0, 255);
-    b = ch_constrain(((unsigned) b * (unsigned) brightness) >> 8, 0, 255);
+    r = ch_constrain((r * brightness) >> 8, 0, 255);
+    g = ch_constrain((g * brightness) >> 8, 0, 255);
+    b = ch_constrain((b * brightness) >> 8, 0, 255);
     strip.setPixelColor(channel, r, g, b);
 }
 
@@ -111,6 +107,7 @@ static void set_light(int brightness, int f_delay)
         rainbow(brightness);
         wait_for_tick();
         strip.show();
+        digitalWrite(LED_BUILTIN, !(tick_time & 1024));
     }
 }
 
@@ -185,54 +182,6 @@ static void flutter(int f)
 
 void loop (void)
 {
-      stars();
-}
-
-      void skip() {
-    int left = !digitalRead(SWITCH_PIN_LEFT);
-    int right = !digitalRead(SWITCH_PIN_RIGHT);
-    if (!(left || right)) {
-      /* switch not connected or placed in the centre */
-      candle();
-    } else if (left) {
-      /* switch pushed left */
-    } else {
-      /* switch pushed right */
-    }
-}
-
-void stars()
-{
-  unsigned long pos = millis();
-
-  // Let s = STARS_ROTATION_TIME / NUM_LEDS
-  // pos 0   LED 0 is maximum
-  // pos s/2 LED 0 is half, LED 1 is half
-  // pos s   LED 1 is maximum
-  
-  pos %= (unsigned long) STARS_ROTATION_TIME;
-  pos *= ((unsigned long) 256 * (unsigned long) NUM_LEDS);
-  pos /= (unsigned long) STARS_ROTATION_TIME;
-  unsigned lower_bound = pos / 256;
-  unsigned fraction = pos % 256;
-  unsigned i;
-
-  for (i = 0; i < NUM_LEDS; i++) {
-    set_rgb(i, 0, 0, 0, 0);
-  }
-  i = lower_bound;
-  set_rgb(i, 255, 255, 255, 255 - fraction);
-  i++;
-  if (i >= NUM_LEDS) {
-    i = 0;
-  }
-  set_rgb(i, 255, 255, 255, fraction);
-  strip.show();
-  delay(1);
-}
-
-void candle()
-{
     int state = rand() % 10;
     switch (state) {
         case 0:
@@ -273,16 +222,12 @@ void setup(void)
     Serial.begin(57600);
     pinMode(LED_BUILTIN, OUTPUT);
     pinMode(NEOPIXEL_PIN, OUTPUT);
-    pinMode(SWITCH_PIN_LEFT, INPUT_PULLUP);
-    pinMode(SWITCH_PIN_RIGHT, INPUT_PULLUP);
-    pinMode(SWITCH_PIN_COMMON, OUTPUT);
-    digitalWrite(SWITCH_PIN_COMMON, 0);
-    digitalWrite(LED_BUILTIN, 0);
+    digitalWrite(LED_BUILTIN, 1);
     strip.begin();
     strip.show();
     Serial.println("");
     Serial.println(name_text);
     srand(analogRead(A0));
     wait_for_tick();
-    //fade_in();
+    fade_in();
 }
