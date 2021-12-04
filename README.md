@@ -1,9 +1,10 @@
-This is a candle flicker animation for Adafruit Circuit Playground Express.
-All ten NeoPixels are used. Each is an independent candle simulation,
-running in parallel with co-operative multitasking (coroutines).
+This is a candle flicker animation for various small boards,
+always involving the colourful WS2812B LEDs or Adafruit "NeoPixels".
+I used this to make various Christmas gifts. The first generation
+of these devices always used Adafruit "Circuit Playground Express"
+hardware, which is very nice but rather expensive. Later generations
+used Arduino Nano boards with generic WS2812B LEDs, and in one
+case I reused an old Raspberry Pi.
 
-The candle simulation is based on code by Tim Bartlett, see http://timbartlett.net/ledcandle/
 
-Build this with the Arduino IDE. The Adafruit Circuit Playground library is
-required, along with the coroutines library in this repository.
 
