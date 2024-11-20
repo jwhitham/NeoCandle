@@ -9,3 +9,10 @@ connected to any microcontroller like this:
 - CLK (Broadcom GPIO 25 on Pi) - Physical pin 22
 - 5V - Physical pin 2
 - GND - Physical pin 39
+
+For Pico the connections are
+
+- MOSI (GP19) - Physical pin 25
+- CLK (GP18) - Physical pin 24
+- 5V - Physical pin 40 (if USB is connected)
+- GND - Physical pin 38
