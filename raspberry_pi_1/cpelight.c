@@ -43,7 +43,11 @@ static const int flutDelay = ((cycleTime / 2) / flutterDepth);
 // 3. flicker() = candle flickers noticably
 // 4. flutter() = the candle needs air!
 
+#ifndef NUMBER_OF_LEDS
 #define num_channels 24
+#else
+#define num_channels NUMBER_OF_LEDS
+#endif
 #define task_stack_space 4096    // stack bytes per task
 
 static jmp_buf task_table[num_channels + 1];

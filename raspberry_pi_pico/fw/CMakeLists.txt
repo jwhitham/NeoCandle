@@ -9,6 +9,8 @@ target_include_directories(main PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/../../Jack_Coroutines
         )
 
+pico_enable_stdio_usb(main 1)
+
 # pull in common dependencies and additional spi hardware support
 target_link_libraries(main pico_stdlib hardware_spi)
 
