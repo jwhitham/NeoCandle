@@ -165,13 +165,13 @@ static void rainbow(int brightness)
 // Output: yellow candle effect
 static void candle(int brightness)
 {
-    unsigned char channel;
+    int channel;
     static const int redPx = 200;
     static const int grnPx = green_high;
     static const int bluePx = 5;
-
     for (channel = 0; channel < NUM_LEDS; channel++) {
-        set_rgb(channel, redPx, grnPx, bluePx, ch_constrain(brightness + (rand() % 7) - 3, 0, 255));
+        set_rgb(channel, redPx, grnPx, bluePx,
+            ch_constrain(brightness + (channel & 15) - 7, 0, 255));
     }
 }
 
@@ -191,7 +191,7 @@ static int wait_for_tick()
         current_time = (int16_t) micros();
         deadline_not_met = deadline_not_met >> 1;
     } while ((current_time - periodic_tick_time) < 0);
-    digitalWrite(LED_PIN, deadline_not_met);
+    digitalWrite(LED_PIN, deadline_not_met ^ ((millisecond_counter >> 8) & 1));
     return ms;
 }
 

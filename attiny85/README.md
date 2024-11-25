@@ -17,6 +17,10 @@ For ATTiny85 the connections are
 - GND - Physical 4
 - Switch left (PB3) - Physical pin 2 - disable candle flicker
 - Switch right (PB4) - Physical pin 3 - disable rainbow colours
+- LED - Physical pin 5 - flashes at 2Hz when the software is working ok
+
+Pins 2, 3 and 5 don't need to be connected and pin 1 (reset) should
+be left unconnected.
 
 This version does not use coroutines due to lack of RAM. The tinySPI library is used
 to drive the LEDs, see http://github.com/JChristensen/tinySPI
