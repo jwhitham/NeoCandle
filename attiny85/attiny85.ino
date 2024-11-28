@@ -27,6 +27,7 @@ static char name_text[] =
 
 static int16_t periodic_tick_time = 0;
 static uint32_t millisecond_counter = 0;
+static uint8_t deadline_not_met_at_least_once = 0;
 
 
 static const int green_high = 70;
@@ -64,6 +65,13 @@ static uint8_t remap[NUM_LEDS] = {
         12, 11, 10, //  10 O'Clock - 10 top, 11, 12 bottom
         24, 23, 22, //  11 O'Clock - 22 top, 23, 24 bottom
         };
+
+enum effect_type_t {
+    CANDLE,
+    RAINBOW,
+    CANDLE_RAINBOW,
+    START,
+};
 
 static bool is_candle_mode(void)
 {
@@ -144,34 +152,31 @@ static uint16_t compute_channel_0_pos()
     return (uint16_t) pos;
 }
 
-// Output: the whole ring shows a rotating rainbow effect at the given brightness
-static void rainbow(int brightness)
+// Output: the whole tree shows a rotating rainbow effect at the given brightness
+static void output_effect(int brightness, effect_type_t effect_type)
 {
-    unsigned char channel;
+    uint8_t random_channel = rand() % NUM_LEDS;
 
     // Wheel position for channel 0
-    unsigned wheel_pos = compute_channel_0_pos();
+    uint16_t wheel_pos = compute_channel_0_pos();
 
-    for (channel = 0; channel < NUM_LEDS; channel++) {
-        // Input a value 0 to 255 to get a color value.
-        // The colours are a transition r - g - b - back to r.
+    for (uint8_t channel = 0; channel < NUM_LEDS; channel++) {
         unsigned r, g, b;
-        compute_wheel_rgb(wheel_pos >> 8, &r, &g, &b);
-        set_rgb(channel, r, g, b, brightness);
-        wheel_pos += ((unsigned long) 1 << (unsigned long) 16) / (unsigned long) NUM_LEDS;
-    }
-}
-
-// Output: yellow candle effect
-static void candle(int brightness)
-{
-    int channel;
-    static const int redPx = 200;
-    static const int grnPx = green_high;
-    static const int bluePx = 5;
-    for (channel = 0; channel < NUM_LEDS; channel++) {
-        set_rgb(channel, redPx, grnPx, bluePx,
-            ch_constrain(brightness + (channel & 15) - 7, 0, 255));
+        r = 200;
+        g = green_high;
+        b = 5;
+        if ((effect_type == RAINBOW)
+        || (effect_type == CANDLE_RAINBOW)) {
+            // Input a value 0 to 255 to get a color value.
+            // The colours are a transition r - g - b - back to r.
+            compute_wheel_rgb(wheel_pos >> 8, &r, &g, &b);
+        }
+        if ((effect_type == RAINBOW)
+        || (effect_type == START)
+        || (channel == random_channel)) {
+            set_rgb(channel, r, g, b, brightness);
+        }
+        wheel_pos += ((uint32_t) 1 << (uint32_t) 16) / (uint32_t) NUM_LEDS;
     }
 }
 
@@ -179,8 +184,7 @@ static void candle(int brightness)
 static int wait_for_tick()
 {
     // Usually all work can be completed in 3 milliseconds
-    // but every few seconds there will be a deadline miss (causing the
-    // LED on physical pin 5 to flash).
+    // but every few seconds there will be a deadline miss
     // Use 4 milliseconds to avoid this.
     const int ms = 4;
     int16_t current_time;
@@ -191,7 +195,10 @@ static int wait_for_tick()
         current_time = (int16_t) micros();
         deadline_not_met = deadline_not_met >> 1;
     } while ((current_time - periodic_tick_time) < 0);
-    digitalWrite(LED_PIN, deadline_not_met ^ ((millisecond_counter >> 8) & 1));
+    if (deadline_not_met) {
+        deadline_not_met_at_least_once = 1;
+    }
+    digitalWrite(LED_PIN, deadline_not_met_at_least_once | ((millisecond_counter >> 8) & 1));
     return ms;
 }
 
@@ -199,11 +206,11 @@ static void set_light(int brightness, int f_delay)
 {
     while(f_delay > 0) {
         if (is_candle_mode()) {
-            candle(brightness);
+            output_effect(brightness, CANDLE);
         } else if (is_rainbow_mode()) {
-            rainbow(120);
+            output_effect(120, RAINBOW);
         } else {
-            rainbow(brightness);
+            output_effect(brightness, CANDLE_RAINBOW);
         }
         f_delay -= wait_for_tick();
         for (uint8_t i = 0; i < SPI_DATA_SIZE; i++) {
@@ -320,6 +327,8 @@ void setup(void)
     pinMode(SWITCH_PIN_RIGHT, INPUT_PULLUP);
     memset(spi_data, 0, SPI_DATA_SIZE);
     srand(1);
+    deadline_not_met_at_least_once = 0;
     periodic_tick_time = (int16_t) micros();
     millisecond_counter = 0;
+    output_effect(60, START);
 }
