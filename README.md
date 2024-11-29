@@ -4,7 +4,9 @@ I used this to make various Christmas gifts. The first generation
 of these devices always used Adafruit "Circuit Playground Express"
 hardware, which is very nice but rather expensive. Later generations
 used Arduino Nano boards with generic WS2812B LEDs, and in one
-case I reused an old Raspberry Pi.
+case I reused an old Raspberry Pi. The smallest microcontroller
+used in these projects is an ATTiny85, which required no external
+components aside from the LEDs themselves.
 
 # Examples
 
@@ -20,4 +22,10 @@ Here, the ring can be covered by an acrylic dome covered with stars.
 The program has two modes: in one, all LEDs are lit and cycle through
 colours, while in another, a single LED lights at a time, so the device
 acts as a star projector (with no moving parts).
+
+![sample3](/sample3.jpg)
+
+The LEDs are on
+[a Christmas tree](https://thepihut.com/products/3d-rgb-xmas-tree-for-raspberry-pi])
+and the program runs on an ATTiny85, programmed using Arduino tools.
 
