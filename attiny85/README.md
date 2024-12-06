@@ -1,8 +1,10 @@
 This is a candle flicker animation for ATTiny85 combined with the
 [3D RGB Xmas Tree](https://thepihut.com/products/3d-rgb-xmas-tree-for-raspberry-pi])
-from The Pi Hut. The LEDs are driven by SPI (they are not WS2812B).
+from The Pi Hut.
 
 ![sample3](/sample3.jpg)
+
+[Instructions for building a circuit board to plug in to the tree](https://www.jwhitham.org/2024/12/attiny85-christmas-tree.html).
 
 The 3D RGB Xmas Tree header is supposed to plug into a Raspberry Pi,
 but can be connected to any microcontroller like this:
@@ -10,7 +12,7 @@ but can be connected to any microcontroller like this:
 - MOSI (Broadcom GPIO 12 on Pi) - Physical pin 32
 - CLK (Broadcom GPIO 25 on Pi) - Physical pin 22
 - 5V - Physical pin 2
-- GND - Physical pin 39
+- GND - Physical pins 6, 9, 14, 20, 25, 30, 34, 39
 
 For ATTiny85 the connections are
 
