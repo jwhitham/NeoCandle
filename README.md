@@ -26,6 +26,6 @@ acts as a star projector (with no moving parts).
 ![sample3](/sample3.jpg)
 
 The LEDs are on
-[a Christmas tree](https://thepihut.com/products/3d-rgb-xmas-tree-for-raspberry-pi])
-and the program runs on an ATTiny85, programmed using Arduino tools.
+[a Christmas tree](https://thepihut.com/products/3d-rgb-xmas-tree-for-raspberry-pi)
+and [the program runs on an ATTiny85](/attiny85), programmed using Arduino tools.
 

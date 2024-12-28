@@ -1,5 +1,5 @@
 This is a candle flicker animation for ATTiny85 combined with the
-[3D RGB Xmas Tree](https://thepihut.com/products/3d-rgb-xmas-tree-for-raspberry-pi])
+[3D RGB Xmas Tree](https://thepihut.com/products/3d-rgb-xmas-tree-for-raspberry-pi)
 from The Pi Hut.
 
 ![sample3](/sample3.jpg)
